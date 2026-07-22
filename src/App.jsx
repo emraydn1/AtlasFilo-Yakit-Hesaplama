@@ -31,6 +31,7 @@ function App() {
     const fetchPrices = async () => {
       try {
         const response = await fetch(`${API_URL}/fuel-prices`);
+
         const data = await response.json();
 
         if (data.success) {
@@ -42,7 +43,7 @@ function App() {
           setUpdatedAt(data.updatedAt);
         }
       } catch (err) {
-        console.error("Yakıt fiyatları alınamadı:", err);
+        console.error(err);
       }
     };
 
