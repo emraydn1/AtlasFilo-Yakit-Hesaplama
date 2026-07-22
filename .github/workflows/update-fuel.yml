@@ -1,54 +1,26 @@
-name: Update Fuel Prices
+name: Test Push
 
 on:
-  schedule:
-    # Her gün 05:00 UTC = Türkiye saatiyle yaklaşık 08:00
-    - cron: "0 5 * * *"
-
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  update:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Dependencies
-        run: npm install
-        working-directory: server
-
-      - name: Commit changes
+      - name: Test commit
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Uzak depoyu güncelle
-          git fetch origin
-          git checkout main
-          git reset --hard origin/main
+          date > deneme.txt
 
-          # Yakıt fiyatlarını güncelle
-          node server/updateFuel.js
+          git add deneme.txt
+          git commit -m "Test push"
 
-          git add server/fuel.json
-
-          if git diff --cached --quiet; then
-            echo "No changes"
-            exit 0
-          fi
-
-          git commit -m "Auto update fuel prices"
-
-          git push origin HEAD:main
+          git push
