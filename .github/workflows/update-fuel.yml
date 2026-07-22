@@ -2,7 +2,7 @@ name: Update Fuel Prices
 
 on:
   schedule:
-    # Her gün 05:00 UTC = Yaz saati Türkiye 08:00
+    # Her gün 05:00 UTC = Türkiye saatiyle yaklaşık 08:00
     - cron: "0 5 * * *"
 
   workflow_dispatch:
@@ -34,6 +34,13 @@ jobs:
 
           git add server/fuel.json
 
-          git diff --cached --quiet || git commit -m "Auto update fuel prices"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
 
-          git push
+          git commit -m "Auto update fuel prices"
+
+          git pull --rebase origin main
+
+          git push origin main
