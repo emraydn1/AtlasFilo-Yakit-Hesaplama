@@ -1,26 +1,51 @@
-name: Test Push
+name: Update Fuel Prices
 
 on:
+  schedule:
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  test:
+  update:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          ref: main
 
-      - name: Test commit
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        working-directory: server
+        run: npm install
+
+      - name: Run Fuel Updater
+        run: node server/updateFuel.js
+
+      - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          date > deneme.txt
+          git pull --rebase origin main
 
-          git add deneme.txt
-          git commit -m "Test push"
+          git add server/fuel.json
 
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m "Auto update fuel prices"
+
+          git push origin HEAD:main
