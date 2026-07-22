@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -28,19 +30,7 @@ jobs:
         working-directory: server
 
       - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git add server/fuel.json
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git commit -m "Auto update fuel prices"
-
-          git pull --rebase origin main
-
-          git push origin main
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto update fuel prices"
+          file_pattern: server/fuel.json
