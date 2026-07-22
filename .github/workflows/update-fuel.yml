@@ -2,9 +2,7 @@ name: Update Fuel Prices
 
 on:
   schedule:
-    # Her gün 05:00 UTC = Türkiye saatiyle yaklaşık 08:00
     - cron: "0 5 * * *"
-
   workflow_dispatch:
 
 permissions:
@@ -15,22 +13,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm install
+      - name: Install Dependencies
+        run: npm install
         working-directory: server
 
-      - run: node updateFuel.js
+      - name: Update Fuel Prices
+        run: node updateFuel.js
         working-directory: server
 
-      - name: Commit changes
+      - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Auto update fuel prices"
           file_pattern: server/fuel.json
+          push_options: --force-with-lease
