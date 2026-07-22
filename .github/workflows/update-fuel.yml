@@ -29,24 +29,26 @@ jobs:
         run: npm install
         working-directory: server
 
-      - name: Update Fuel Prices
-        run: node updateFuel.js
-        working-directory: server
-
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
+          # Uzak depoyu güncelle
+          git fetch origin
+          git checkout main
+          git reset --hard origin/main
+
+          # Yakıt fiyatlarını güncelle
+          node server/updateFuel.js
+
           git add server/fuel.json
 
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No changes"
             exit 0
           fi
 
           git commit -m "Auto update fuel prices"
 
-          git pull --rebase --autostash origin main
-
-          git push origin main
+          git push origin HEAD:main
